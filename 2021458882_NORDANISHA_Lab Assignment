@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
+#include <signal.h>
+
+#define NUM_CHILD 4
+#define SEM_WAIT 2
+
+void getQTY(char qty[NUM_CHILD + 1])
+{
+srand(getpid() + getppid());
+
+Qty[0] = 49 + rand() % 7;
+For(int i = 1; i < NUM_CHILD; i++)
+{
+Qty[i] = 48 + rand() % 7;
+}
+Qty[NUM_CHILD] = ‘\0’;
+}
+
+Void sigint_handler(int sig);
+Int main()
+{
+Signal(SIGINT, sigint_handler);
+
+While(1)
+{
+Int pipefds[2];
+Char qty[NUM_CHILD + 1];
+char buffer[NUM_CHILD + 1];
+char string[100];
+char s[100];
+
+pipe(pipefds);
+pid_t pid = fork();
+
+if signal(SIGINT, sigint_handler) == SIG_ERR)
+{
+Perror(“signal”);
+Exit(1);
+}
+
+If(pid == 0)
+{
+getQTY(qty);
+close(pipefds[0]);
+write(pipefds[1], qty, NUM_CHILD + 1);
+
+printf(“Please enter message to send to children : \n”);
+fgets(string, 100, stdin);
+printf(“The parent message to child : %s”, string);
+printf(“Generating Quantity in parent and transfer to child…\n”);
+
+sleep(SEM_WAIT);
+exit(EXIT_SUCCESS);
+}
+
+if(pid > 0)
+{
+Wait(NULL);
+
+Close(pipefds[1]);
+Read(pipefds[0], buffer, NUM_CHILD + 1);
+
+Printf(“Child received quantity ‘%s’ from parent… \n\n”, buffer)
+}
+}
+Return EXIT_SUCCESS;
+}
+
+Void sigint_handler(int sig)
+{
+Printf(“** ERROR! **\n”);
+Exit(1);
+}
